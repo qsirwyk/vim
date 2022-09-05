@@ -1,0 +1,297 @@
+"映射命令和有效模式的总览:
+"有递归的映射	无递归的映射	在什么模式下有效
+"map	        noremap	        普通，可视模式及操作符等待模式
+"vmap	        vnoremap	    可视模式
+"nmap	        nnoremap	    普通模式
+"omap	        onoremap	    操作符等待模式
+"map!	        noremap!	    插入和命令模式
+"imap	        inoremap	    插入模式
+"cmap	        cnoremap	    命令模式
+
+" Vim 按键映射
+" <A>    表示Alt(Alt键可以使用<M-key>或<A-key>来表示, 例子: <A-e> 表示 Alt + e
+" <S-F1> 表示 Shift-F1
+" <Space>表示 空格
+" <BS>   表示 Backspace 键
+" <Esc>  代表 Escape 键
+" <CR>   代表 Enter键
+" <C-j>  代表 Ctrl + j
+" <D>    代表 Command 键
+
+source $VIMRUNTIME/vimrc_example.vim
+
+" Use the internal diff if available.
+" Otherwise use the special 'diffexpr' for Windows.
+if &diffopt !~# 'internal'
+  set diffexpr=MyDiff()
+endif
+function MyDiff()
+  let opt = '-a --binary '
+  if &diffopt =~ 'icase' | let opt = opt . '-i ' | endif
+  if &diffopt =~ 'iwhite' | let opt = opt . '-b ' | endif
+  let arg1 = v:fname_in
+  if arg1 =~ ' ' | let arg1 = '"' . arg1 . '"' | endif
+  let arg1 = substitute(arg1, '!', '\!', 'g')
+  let arg2 = v:fname_new
+  if arg2 =~ ' ' | let arg2 = '"' . arg2 . '"' | endif
+  let arg2 = substitute(arg2, '!', '\!', 'g')
+  let arg3 = v:fname_out
+  if arg3 =~ ' ' | let arg3 = '"' . arg3 . '"' | endif
+  let arg3 = substitute(arg3, '!', '\!', 'g')
+  if $VIMRUNTIME =~ ' '
+    if &sh =~ '\<cmd'
+      if empty(&shellxquote)
+        let l:shxq_sav = ''
+        set shellxquote&
+      endif
+      let cmd = '"' . $VIMRUNTIME . '\diff"'
+    else
+      let cmd = substitute($VIMRUNTIME, ' ', '" ', '') . '\diff"'
+    endif
+  else
+    let cmd = $VIMRUNTIME . '\diff'
+  endif
+  let cmd = substitute(cmd, '!', '\!', 'g')
+  silent execute '!' . cmd . ' ' . opt . arg1 . ' ' . arg2 . ' > ' . arg3
+  if exists('l:shxq_sav')
+    let &shellxquote=l:shxq_sav
+  endif
+endfunction
+
+"==============通用设置====================
+
+" 垂直滚动时，光标距离顶部/底部的距离（单位：行） 默认 5
+set scrolloff=5
+" 水平滚动时，光标距离行首或行尾的距离（单位：字符） 默认 0
+set sidescrolloff=5
+" 设置行宽，即一行显示多少字符 默认 78
+set textwidth=780
+
+" 禁止生成临时文件
+set nobackup
+set noswapfile
+set noerrorbells
+set nowritebackup
+
+" 保留操作历史
+set undofile
+" 设置操作历史文件的保存位置
+set undodir=$VIM\undo
+" 需要记住多少次历史操作
+set history=100
+
+" 默认即为中文
+set langmenu=cn
+
+" 自动切换中英文
+"autocmd! InsertLeave *  set imdisable
+autocmd! InsertEnter *  set noimdisable
+
+" 开启鼠标
+ set mouse=a
+
+" 配置字体 abcdefghijklmnopqrstuvwxyz0123456789LIilo0O
+"set guifont=YaHei\ Consolas\ Hybrid:h14
+set guifont=Microsoft\ YaHei\ Mono:h12
+"set guifont=Consolas\ for\ Powerline\ FixedD:h18
+"set guifontwide=YaHei\ Consolas\ Hybrid:h12
+"
+" 设置配色方案
+colorscheme torte
+
+" 启动时窗口最大化 在mac里面不支持
+au GUIEnter * simalt ~x
+
+" 当文件在外部被修改，自动更新该文件
+set autoread
+set autowrite
+
+" 失去焦点后自动保存文件
+au FocusLost * :up
+
+" 显示行号
+set number
+
+" 开启相对行号
+" set relativenumber
+
+" 高亮搜索的关键字
+set hlsearch
+
+" 搜索忽略大小写
+set ignorecase
+
+" 在输入括号时光标会短暂地跳到与之相匹配的括号处,不影响输入
+set showmatch
+
+" 防止特殊字符无法正常显示
+set ambiwidth=double
+
+" 自动设置当前目录为正在编辑的目录
+set autochdir
+
+" 自动补全命令时候使用菜单式匹配列表
+" 命令模式下，底部操作指令按下 Tab 键自动补全。第一次按下 Tab，会显示所有匹配的操作指令的清单；
+" 第二次按下 Tab，会依次选择各个指令
+set wildmenu
+set wildmode=longest:list,full
+
+" 不换行
+set nowrap
+
+" 自动隐藏鼠标
+set mousehide
+
+" 不显示工具栏
+set guioptions-=T
+
+"避免在操作中频繁出现“请按Enter或其他命令继续”
+"以及出现“更多”的提示而需要按空格键继续
+set nomore
+
+" 缩进设置
+" 继承前一行的缩进方式
+set autoindent
+
+" 为C程序提供自动缩进
+set smartindent
+set cindent
+
+" 用空格代替tab
+set expandtab
+
+" 以4个空格显示Tab键
+set tabstop=4
+
+" 自动缩进时缩进4个空格
+set shiftwidth=4
+
+" 按一次tab缩进4个空格
+set softtabstop=4
+
+" 根据文件类型 加载缩进文件
+filetype indent on
+
+" 语法高亮
+syntax on
+
+" 高亮当前行和列
+au WinLeave * set nocursorline nocursorcolumn
+au WinEnter * set cursorline cursorcolumn
+set cursorline cursorcolumn
+
+" 显示一些不显示的空白字符,trail:结尾空白
+" 通过 set list 和 set nolist 控制是否显示或是用 set list! 切换显示
+set listchars=tab:>-,eol:$,trail:-
+
+" 高亮行尾的空格
+highlight WhitespaceEOL ctermbg=red guibg=red
+match WhitespaceEOL /\s\+$/
+
+" 显示按下的命令 命令行模式下，在底部显示当前键入的指令。例如键入dd删除一行时，键入第一个d，底部右侧显示d，完全键入dd时，操作完成，底部显示消失
+set showcmd
+
+" 是否显示状态栏：0表示不显示，1表示只在多窗口显示，2表示显示
+set laststatus=2
+" 设置状态条显示的信息：文件名、光标所在字符的ASCII码、光标所在字符的ASCII码的十六进制、光标所在的位置、光标所在行之上的内容占整个文件的百分比、文件总行数
+"set statusline=\ %F%m%r%h%w\ \ \ \ ASCII=\%3.3b\ \ \ \ HEX=0x\%.2B\ \ \ \ X,Y=%l,%v\ \ \ \ %p%%\ \ \ \ TotalLine=%L
+set statusline=\ ASCII=\%.3b\ \ HEX=0x\%.2B\ \ row=%l/%L\=%p%%\ \ col=%v\ \ \ %F%m%r%h%w
+
+"设置文件的代码形式 utf8
+set encoding=utf-8
+set termencoding=utf-8
+set fileencoding=utf-8
+"set fileencodings=ucs-bom,utf-8,chinese,cp936
+set fileencodings=utf-8,ucs-bom,gb18030,gbk,gb2312,cp936,big5,latin-1
+
+"==============通用设置End====================
+
+"==============自定义快捷键================
+" 设置 leader 键 为 ","
+let mapleader=","
+
+" 映射普通模式下 ,e 为快速编辑配置文件 edit
+nnoremap <leader>e :edit $VIM/_vimrc<CR>
+
+" 映射普通模式下 ,r 为应用编辑配置文件 reload
+nnoremap <leader>r :source $VIM/_vimrc<CR>
+
+" 映射普通模式下 ,n 不显示高亮搜索 nohlsearch
+nnoremap <leader>n :set nohlsearch<CR>
+
+" 映射普通模式下 ,<Space> 删除行尾空格 替换超过2行空行为1行空行
+" DelSpaceLine函数已经抽离定义在了 delspaceline.vim 插件中去了
+" 也可以使用自定义命令 :DS 实现同样的效果
+nnoremap <leader><Space> :call DelSpaceLine()<CR>
+
+" 设置gvim下和外部的复制粘贴 "+ 系统粘贴板寄存器
+" 选择模式下 复制到 + 寄存器
+vmap <C-c> "+y
+" 选择模式下 剪切到 + 寄存器
+vmap <C-x> "+c
+" 选择模式下 粘贴 + 寄存器内容
+vmap <C-v> c<ESC>"+p
+" 插入模式下 粘贴 + 寄存器内容
+imap <C-v> <C-r><C-o>+
+
+"==========(选中搜索)==========
+function! s:VSetSearch(cmdtype)
+    let temp = @s
+    norm! gv"sy
+    let @/ = '\V' . substitute(escape(@s, a:cmdtype.'\'), '\n', '\\n', 'g')
+    let @s = temp
+endfunction
+
+xnoremap * :<C-u>call <SID>VSetSearch('/')<CR>/<C-R>=@/<CR><CR>
+xnoremap # :<C-u>call <SID>VSetSearch('?')<CR>?<C-R>=@/<CR><CR>
+"==========(选中搜索End)==========
+
+"============= 自动插入文件头=======================================
+"新建.c,.h,.sh,.java,.php文件，自动插入文件头
+autocmd BufNewFile *.cpp,*.[ch],*.sh,*.java,*.php exec ":call SetTitle()"
+""定义函数SetTitle，自动插入文件头
+func SetTitle()
+	"如果文件类型为.sh文件
+	if &filetype == 'sh'
+		call setline(1, "##########################################################################")
+		call append(line("."), "**** ".expand("%"))
+		call append(line(".")+1, "**** QSir")
+		call append(line(".")+2, "**** 619536581@qq.com")
+		call append(line(".")+3, "**** ".strftime("%c"))
+		call append(line(".")+4, "#########################################################################")
+		call append(line(".")+5, "#!/bin/zsh")
+		call append(line(".")+6, "PATH=/home/edison/bin:/home/edison/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/work/tools/gcc-3.4.5-glibc-2.3.6/bin")
+		call append(line(".")+7, "export PATH")
+		call append(line(".")+8, "")
+	else
+		call setline(1, "/*************************************************************************")
+		call append(line("."), "**** ".expand("%"))
+		call append(line(".")+1, "**** QSir")
+		call append(line(".")+2, "**** 619536581@qq.com")
+		call append(line(".")+3, "**** ".strftime("%c"))
+		call append(line(".")+4, "************************************************************************/")
+		call append(line(".")+5, "")
+	endif
+	if &filetype == 'cpp'
+		call append(line(".")+6, "#include<iostream>")
+    	call append(line(".")+7, "using namespace std;")
+		call append(line(".")+8, "")
+	endif
+	if &filetype == 'c'
+		call append(line(".")+6, "#include<stdio.h>")
+		call append(line(".")+7, "")
+	endif
+	"	if &filetype == 'java'
+	"		call append(line(".")+6,"public class ".expand("%"))
+	"		call append(line(".")+7,"")
+	"	endif
+	if &filetype == 'php'
+		call append(line(".")+6, "<?php")
+		call append(line(".")+7, "phpinfo();")
+	endif
+	"新建文件后，自动定位到文件末尾
+	autocmd BufNewFile * normal G
+endfunc
+"============= 自动插入文件头End=======================================
+
+"==============自定义快捷键End================
